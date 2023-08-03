@@ -24,6 +24,7 @@ from metrics.torch_utils import training_stats
 from metrics.torch_utils import custom_ops
 from metrics.torch_utils.ops import conv2d_gradfix
 from datasets import DATASET_DICT, to_numpy3
+from copy import deepcopy
 
 # ----------------------------------------------------------------------------
 
@@ -173,7 +174,11 @@ def calc_metrics(ctx, metrics, data_root, dataset, data_folder, sample_folder, m
     # Print dataset options.
     if args.verbose:
         print('Dataset options:')
-        print(json.dumps(args.dataset_kwargs, indent=2))
+        printable = deepcopy(args.dataset_kwargs)
+        for k, v in printable.items():
+            if callable(v):
+                printable[k] = v.__name__
+        print(json.dumps(printable, indent=2))
 
     # Launch processes.
     if args.verbose:

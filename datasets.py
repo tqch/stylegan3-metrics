@@ -74,14 +74,14 @@ def to_float32(x):
 
 
 def to_numpy(x):
+    if x.ndim == 2:
+        x = x[:, :, None]
     return np.array(x).transpose((2, 0, 1))
 
 
 def c3hw(x):
-    if x.ndim == 2:
-        x = x[:, None, :, :]
     if x.shape[0] == 1:
-        x = np.repeat(x, 3, axis=1)
+        x = np.repeat(x, 3, axis=0)
     return x
 
 
@@ -162,8 +162,16 @@ class ImageFolder(tvds.ImageFolder):
 
 
 class NPZLoader:
-    def __init__(self, npz_file, data_key="arr_0", label_key="arr_1", transform=None):
+    def __init__(
+            self,
+            npz_file,
+            data_key="arr_0",
+            label_key="arr_1",
+            transform=None,
+            **ignore_kwargs
+    ):
         npz_data = np.load(npz_file)
+        self.name = os.path.basename(npz_file)[:-4]
         self.data = npz_data[data_key]
         self.labels = npz_data.get(label_key, None)
         self.transform = transform
